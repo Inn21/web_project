@@ -1,8 +1,10 @@
 from celery import shared_task, current_task
 from celery.exceptions import Ignore
+from image_processing_project import settings
 from .models import ImageTask
 from PIL import Image, ImageFilter
 import os
+
 
 @shared_task(bind=True)
 def process_image_task(self, task_id):
@@ -12,7 +14,29 @@ def process_image_task(self, task_id):
         width, height = img.size
         processed_img = Image.new(img.mode, img.size)      
 
+        thumbnail_size = (300, 300)  # Розмір зменшеної копії
+        
+        compressed_image = Image.open(task.original_image.path)
+        compressed_image.thumbnail(thumbnail_size)
+
+        # Визначаємо шлях для збереження компресованого зображення
+        compressed_image_relative_path = os.path.join('original_images', 'compressed', os.path.basename(task.original_image.name))
+        compressed_image_full_path = os.path.join(settings.MEDIA_ROOT, compressed_image_relative_path)
+
+        # Створюємо директорію, якщо її немає
+        os.makedirs(os.path.dirname(compressed_image_full_path), exist_ok=True)
+
+        # Зберігаємо компресоване зображення
+        compressed_image.save(compressed_image_full_path)
+
+        # Оновлюємо модель
+        task.original_image_compressed.name = compressed_image_relative_path
+        # Решта оновлень полів моделі...
+        task.save()
+
         total_steps = height
+
+
 
         for y in range(height):
             # Перевірка на відміну задачі
@@ -40,7 +64,7 @@ def process_image_task(self, task_id):
         processed_img.save(processed_image_path)
 
         # Генеруємо зменшену копію для попереднього перегляду
-        thumbnail_size = (300, 300)  # Розмір зменшеної копії
+
         thumbnail_img = processed_img.copy()
         thumbnail_img.thumbnail(thumbnail_size)
         thumbnail_image_path = processed_image_path.replace('processed_images', 'thumbnails')

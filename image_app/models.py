@@ -20,6 +20,7 @@ class ImageTask(models.Model):
 
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     original_image = models.ImageField(upload_to='original_images/')
+    original_image_compressed = models.ImageField(upload_to='original_images/compressed', null=True, blank=True)
 
     processed_image = models.ImageField(upload_to='processed_images/', null=True, blank=True)
     thumbnail_image = models.ImageField(upload_to='thumbnails/', null=True, blank=True) 

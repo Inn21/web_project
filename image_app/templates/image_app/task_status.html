@@ -7,27 +7,31 @@
 </head>
 <body>
     <h1>Статус задачі</h1>
+
+    {% if task.status == 'PROCESSING' %}
+        <button id="cancel-button">Відмінити задачу</button>
+    {% endif %}
+
+   
+    <h2>Резулльтат:</h2>
+    <img id="processed-image" src="" alt="Попередній перегляд">
+    <p>
+        <a id="download-link" href="" download>Завантажити повне зображення</a>
+    </p>
+
+    <a href="{% url 'upload_image' %}">Завантажити нове зображення</a>
+    <a href="{% url 'task_history' %}">Переглянути історію задач</a>
+
     <p id="status">{{ task.status }}</p>
+
     <div id="progress-container" style="width: 20%; background-color: #ddd;">
         <div id="progress-bar" style="width: 0%; height: 20px; background-color: green;"></div>
     </div>
     <p id="progress-text"></p>
 
-    {% if task.status in 'COMPLETED' %}
-    <h2>Оброблене зображення</h2>
-    <img src="{{ task.thumbnail_image.url }}" alt="Попередній перегляд">
-    <p>
-        <a href="{{ task.processed_image.url }}" download>Завантажити повне зображення</a>
-    </p>
-    {% endif %}
 
-    {% if task.status in 'PROCESSING' %}
-        <button id="cancel-button">Відмінити задачу</button>
-    {% endif %}
-
-    <a href="{% url 'upload_image' %}">Завантажити нове зображення</a>
-    <a href="{% url 'task_history' %}">Переглянути історію задач</a>
-
+    <!-- Елементи для відображення зображення та посилання -->
+   
     <script>
         function checkStatus() {
             fetch("{% url 'task_status' task_id=task.id %}", {
@@ -47,9 +51,11 @@
                     // Відображаємо зображення та посилання
                     if (data.thumbnail_image_url) {
                         document.getElementById('processed-image').src = data.thumbnail_image_url;
+                        document.getElementById('processed-image').style.display = 'block';
                     }
                     if (data.processed_image_url) {
                         document.getElementById('download-link').href = data.processed_image_url;
+                        document.getElementById('download-link').style.display = 'block';
                     }
 
                     clearInterval(statusInterval);
@@ -85,5 +91,11 @@
             });
         });
     </script>
+
+    <style>
+    #processed-image, #download-link {
+        display: none;
+    }
+    </style>
 </body>
 </html>

@@ -6,34 +6,46 @@
 <body>
     <h1>Історія задач</h1>
     <p><a href="{% url 'upload_image' %}">Завантажити нове зображення</a></p>
-    <p><a href="{% url 'logout' %}">Вийти</a></p>
+    <p><a href="{% url 'login' %}">Вийти</a></p>
     <table>
         <tr>
             <th>Дата</th>
-            <th>Оригінальне зображення</th>
-            <th>Оброблене зображення</th>
             <th>Статус</th>
+            <th>Оригінальне зображення</th>
+            <th>Дії</th>
+            <th>Оброблене зображення</th>
             <th>Дії</th>
         </tr>
         {% for task in tasks %}
         <tr>
             <td>{{ task.created_at }}</td>
+            <td>{{ task.get_status_display }}</td>
+            <td>{% if task.original_image_compressed %}
+                <img src="{{ task.original_image_compressed.url }}" alt="Стиснуте зображення" width="*">      
+            {% else %}
+                -
+            {% endif %}
+            </td>
             <td>
-                <img src="{{ task.original_image.url }}" alt="Оригінал" width="100">
+                {% if task.original_image %}
+                    <a href="{{ task.original_image.url }}" download>Завантажити</a>                
+                {% else %}
+                    -
+                {% endif %}
             </td>
             <td>
                 {% if task.status == 'COMPLETED' and task.thumbnail_image %}
-                    <img src="{{ task.thumbnail_image.url }}" alt="Оброблене" width="100">
+                    <img src="{{ task.thumbnail_image.url }}" alt="Оброблене" width="*">
                 {% else %}
-                    Немає
+                    -
                 {% endif %}
             </td>
-            <td>{{ task.get_status_display }}</td>
+            
             <td>
                 {% if task.status in 'COMPLETED' and task.processed_image %}
                     <a href="{{ task.processed_image.url }}" download>Завантажити</a>
                 {% elif task.status in 'PROCESSING' %}
-                    <a href="{% url 'task_status' task_id=task.id %}">Переглянути статус</a>
+                    <a href="{% url 'task_status' task_id=task.id %}">В процесі обробки</a>
                 {% else %}
                     -
                 {% endif %}
