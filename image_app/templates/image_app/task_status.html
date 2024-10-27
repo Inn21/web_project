@@ -1,0 +1,77 @@
+<!-- image_app/templates/image_app/task_status.html -->
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Статус задачі</title>
+</head>
+<body>
+    <h1>Статус задачі</h1>
+    <p id="status">{{ task.status }}</p>
+    <div id="progress-container" style="width: 100%; background-color: #ddd;">
+        <div id="progress-bar" style="width: 0%; height: 20px; background-color: green;"></div>
+    </div>
+    <p id="progress-text"></p>
+
+    {% if task.status == 'COMPLETED' and task.processed_image %}
+        <h2>Оброблене зображення</h2>
+        <img id="processed-image" src="{{ task.processed_image.url }}" alt="Оброблене зображення">
+    {% endif %}
+
+    {% if task.status in 'PROCESSING' %}
+        <button id="cancel-button">Відмінити задачу</button>
+    {% endif %}
+
+    <a href="{% url 'upload_image' %}">Завантажити нове зображення</a>
+    <a href="{% url 'task_history' %}">Переглянути історію задач</a>
+
+    <script>
+        function checkStatus() {
+            fetch("{% url 'task_status' task_id=task.id %}", {
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('status').innerText = data.status;
+
+                if (data.status === 'COMPLETED') {
+                    if (data.processed_image_url) {
+                        document.getElementById('processed-image').src = data.processed_image_url;
+                    }
+                    clearInterval(statusInterval);
+                } else if (data.status === 'CANCELLED' || data.status === 'FAILED') {
+                    clearInterval(statusInterval);
+                } else if (data.progress) {
+                    let progress = (data.progress / data.total) * 100;
+                    document.getElementById('progress-bar').style.width = progress + '%';
+                    document.getElementById('progress-text').innerText = `Прогрес: ${data.progress}/${data.total}`;
+                }
+            })
+            .catch(error => console.error('Error:', error));
+        }
+
+        var statusInterval = setInterval(checkStatus, 1000);
+
+        document.getElementById('cancel-button')?.addEventListener('click', function() {
+            fetch("{% url 'cancel_task' task_id=task.id %}", {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': '{{ csrf_token }}',
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('Задачу відмінено');
+                    window.location.reload();
+                } else {
+                    alert('Не вдалося відмінити задачу: ' + data.message);
+                }
+            });
+        });
+    </script>
+</body>
+</html>

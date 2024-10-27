@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Історія задач</title>
+</head>
+<body>
+    <h1>Історія задач</h1>
+    <ul>
+        {% for task in tasks %}
+            <li>
+                <strong>Задача {{ task.id }}</strong> - {{ task.created_at }} - {{ task.get_status_display }}
+                {% if task.processed_image %}
+                    <br>
+                    <img src="{{ task.processed_image.url }}" alt="Processed Image" style="max-width: 200px;">
+                {% endif %}
+            </li>
+        {% empty %}
+            <li>У вас ще немає задач.</li>
+        {% endfor %}
+    </ul>
+    <p><a href="{% url 'upload_image' %}">Завантажити нове зображення</a></p>
+    <p><a href="{% url 'logout' %}">Вийти</a></p>
+</body>
+</html>

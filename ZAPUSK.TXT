@@ -1,0 +1,19 @@
+----------------------------------------------
+venv\Scripts\activate
+
+cd image_processing_project
+
+python manage.py makemigrations
+python manage.py migrate
+----------------------------------------------
+venv\Scripts\activate
+
+cd image_processing_project
+
+celery -A image_processing_project worker -l info --pool=solo
+---------------------------------------------
+venv\Scripts\activate
+
+cd image_processing_project
+
+python manage.py runserver

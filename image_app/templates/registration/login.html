@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Вхід</title>
+</head>
+<body>
+    <h1>Вхід</h1>
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Увійти</button>
+    </form>
+    <p>Не маєте акаунту? <a href="{% url 'signup' %}">Реєстрація</a></p>
+</body>
+</html>

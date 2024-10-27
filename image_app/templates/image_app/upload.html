@@ -1,0 +1,27 @@
+<!-- image_app/templates/image_app/upload.html -->
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Завантаження зображення</title>
+</head>
+<body>
+    <h1>Завантаження зображення</h1>
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        {{ form.non_field_errors }}
+        <p>
+            {{ form.original_image.label_tag }}
+            {{ form.original_image }}
+            {{ form.original_image.errors }}
+        </p>
+        <p>
+            {{ form.operation.label_tag }}
+            {{ form.operation }}
+            {{ form.operation.errors }}
+        </p>
+        <button type="submit">Завантажити та обробити</button>
+    </form>
+    <a href="{% url 'task_history' %}">Переглянути історію задач</a>
+</body>
+</html>
