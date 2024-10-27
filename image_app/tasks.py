@@ -2,7 +2,7 @@ from celery import shared_task, current_task
 from celery.exceptions import Ignore
 from image_processing_project import settings
 from .models import ImageTask
-from PIL import Image, ImageFilter
+from PIL import  Image, ImageFilter, ImageOps, ImageEnhance
 import os
 
 
@@ -37,7 +37,6 @@ def process_image_task(self, task_id):
         total_steps = height
 
 
-
         for y in range(height):
             # Перевірка на відміну задачі
             task.refresh_from_db()
@@ -49,9 +48,16 @@ def process_image_task(self, task_id):
             # Обробка рядка
             row = img.crop((0, y, width, y+1))
             if task.operation == 'grayscale':
-                row = row.convert('L')
+                row = row.convert('L') 
             elif task.operation == 'blur':
                 row = row.filter(ImageFilter.BLUR)
+            elif task.operation == 'invert':
+                row = ImageOps.invert(row) 
+            elif task.operation == 'contrast':
+                enhancer = ImageEnhance.Contrast(row)
+                row = enhancer.enhance(2)  
+            elif task.operation == 'sharpen':
+                row = row.filter(ImageFilter.SHARPEN)
 
             processed_img.paste(row, (0, y))
 
@@ -64,7 +70,6 @@ def process_image_task(self, task_id):
         processed_img.save(processed_image_path)
 
         # Генеруємо зменшену копію для попереднього перегляду
-
         thumbnail_img = processed_img.copy()
         thumbnail_img.thumbnail(thumbnail_size)
         thumbnail_image_path = processed_image_path.replace('processed_images', 'thumbnails')

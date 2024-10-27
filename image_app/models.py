@@ -15,7 +15,9 @@ class ImageTask(models.Model):
     OPERATION_CHOICES = [
         ('grayscale', 'Grayscale'),
         ('blur', 'Blur'),
-        # Додайте інші операції, якщо потрібно
+        ('invert', 'Invert Colors'),
+        ('contrast', 'Increase Contrast'),
+        ('sharpen', 'Sharpen'),
     ]
 
     user = models.ForeignKey(User, on_delete=models.CASCADE)

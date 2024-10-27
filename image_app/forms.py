@@ -11,6 +11,8 @@ class ImageUploadForm(forms.ModelForm):
             'operation': forms.Select(choices=[
                 ('grayscale', 'Grayscale'),
                 ('blur', 'Blur'),
-                # Додайте інші операції, якщо потрібно
+                ('invert', 'Invert Colors'),
+                ('contrast', 'Increase Contrast'),
+                ('sharpen', 'Sharpen'),
             ]),
         }
