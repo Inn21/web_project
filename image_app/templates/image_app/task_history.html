@@ -5,20 +5,42 @@
 </head>
 <body>
     <h1>Історія задач</h1>
-    <ul>
-        {% for task in tasks %}
-            <li>
-                <strong>Задача {{ task.id }}</strong> - {{ task.created_at }} - {{ task.get_status_display }}
-                {% if task.processed_image %}
-                    <br>
-                    <img src="{{ task.processed_image.url }}" alt="Processed Image" style="max-width: 200px;">
-                {% endif %}
-            </li>
-        {% empty %}
-            <li>У вас ще немає задач.</li>
-        {% endfor %}
-    </ul>
     <p><a href="{% url 'upload_image' %}">Завантажити нове зображення</a></p>
     <p><a href="{% url 'logout' %}">Вийти</a></p>
+    <table>
+        <tr>
+            <th>Дата</th>
+            <th>Оригінальне зображення</th>
+            <th>Оброблене зображення</th>
+            <th>Статус</th>
+            <th>Дії</th>
+        </tr>
+        {% for task in tasks %}
+        <tr>
+            <td>{{ task.created_at }}</td>
+            <td>
+                <img src="{{ task.original_image.url }}" alt="Оригінал" width="100">
+            </td>
+            <td>
+                {% if task.status == 'COMPLETED' and task.thumbnail_image %}
+                    <img src="{{ task.thumbnail_image.url }}" alt="Оброблене" width="100">
+                {% else %}
+                    Немає
+                {% endif %}
+            </td>
+            <td>{{ task.get_status_display }}</td>
+            <td>
+                {% if task.status in 'COMPLETED' and task.processed_image %}
+                    <a href="{{ task.processed_image.url }}" download>Завантажити</a>
+                {% elif task.status in 'PROCESSING' %}
+                    <a href="{% url 'task_status' task_id=task.id %}">Переглянути статус</a>
+                {% else %}
+                    -
+                {% endif %}
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+    
 </body>
 </html>

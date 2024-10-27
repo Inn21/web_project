@@ -83,4 +83,4 @@ CELERY_BROKER_URL = 'redis://localhost:6379/0'
 CELERY_RESULT_BACKEND = 'redis://localhost:6379/0'
 
 # Перенаправлення після входу
-LOGIN_REDIRECT_URL = '/'
+LOGOUT_REDIRECT_URL = 'login' 

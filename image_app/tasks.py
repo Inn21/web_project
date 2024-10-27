@@ -10,7 +10,8 @@ def process_image_task(self, task_id):
     try:
         img = Image.open(task.original_image.path)
         width, height = img.size
-        processed_img = Image.new(img.mode, img.size)
+        processed_img = Image.new(img.mode, img.size)      
+
         total_steps = height
 
         for y in range(height):
@@ -38,8 +39,17 @@ def process_image_task(self, task_id):
         processed_image_path = task.original_image.path.replace('original_images', 'processed_images')
         processed_img.save(processed_image_path)
 
+        # Генеруємо зменшену копію для попереднього перегляду
+        thumbnail_size = (300, 300)  # Розмір зменшеної копії
+        thumbnail_img = processed_img.copy()
+        thumbnail_img.thumbnail(thumbnail_size)
+        thumbnail_image_path = processed_image_path.replace('processed_images', 'thumbnails')
+        os.makedirs(os.path.dirname(thumbnail_image_path), exist_ok=True)
+        thumbnail_img.save(thumbnail_image_path)
+
         # Оновлюємо модель
         task.processed_image = processed_image_path.replace(task.original_image.storage.location + os.sep, '')
+        task.thumbnail_image = thumbnail_image_path.replace(task.original_image.storage.location + os.sep, '')
         task.status = 'COMPLETED'
         task.save()
     except Exception as e:
